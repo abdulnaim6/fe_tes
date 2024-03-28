@@ -14,7 +14,7 @@ import {Picker} from '@react-native-picker/picker';
 
 const Home = ({navigation}) => {
   const [data, setData] = useState({
-    firsName: '',
+    firstName: '',
     lastName: '',
     biodata: '',
     provinsi: '',
@@ -22,6 +22,29 @@ const Home = ({navigation}) => {
     kecamatan: '',
     kelurahan: '',
   });
+
+  const handleFormSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('firstName', data.firstName);
+      formData.append('lastName', data.lastName);
+      formData.append('biodata', data.biodata);
+      formData.append('provinsi', data.provinsi);
+      formData.append('kota', data.kota);
+      formData.append('kecamatan', data.kecamatan);
+      formData.append('kelurahan', data.kelurahan);
+
+      const response = await axios.post(
+        `https://tes-tech.vercel.app/users`,
+        formData,
+      );
+      console.log('Response:', response.data);
+      Alert.alert('Success', 'Data has been submitted successfully.');
+    } catch (error) {
+      console.error('Error submitting data:', error);
+      Alert.alert('Error', 'Failed to submit data. Please try again later.');
+    }
+  };
 
   const [provinces, setProvinces] = useState([]);
   const [regencies, setRegencies] = useState([]);
@@ -131,15 +154,29 @@ const Home = ({navigation}) => {
         </View>
         <View style={styles.inputData}>
           <Text style={{color: 'blue'}}>Nama Depan</Text>
-          <TextInput placeholder="Nama Depan" />
+          <TextInput
+            placeholder="Nama Depan"
+            value={data.firstName}
+            onChangeText={text => setData({...data, firstName: text})}
+          />
         </View>
         <View style={styles.inputData}>
           <Text style={{color: 'blue'}}>Nama Belakang</Text>
-          <TextInput placeholder="Nama Belakang" />
+          <TextInput
+            placeholder="Nama Belakang"
+            value={data.lastName}
+            onChangeText={text => setData({...data, lastName: text})}
+          />
         </View>
         <View style={styles.inputData}>
           <Text style={{color: 'blue'}}>biodata</Text>
-          <TextInput placeholder="Biodata" multiline={true} numberOfLines={4} />
+          <TextInput
+            placeholder="Biodata"
+            multiline={true}
+            numberOfLines={4}
+            value={data.biodata}
+            onChangeText={text => setData({...data, biodata: text})}
+          />
         </View>
         <View style={styles.inputData}>
           <Text style={{color: 'blue'}}>Provinsi</Text>
@@ -209,7 +246,23 @@ const Home = ({navigation}) => {
             ))}
           </Picker>
         </View>
-        <Text style={styles.next} onPress={() => navigation.navigate('Upload')}>
+        <Text
+          style={styles.next}
+          onPress={() =>
+            navigation.navigate('Upload', {
+              userData: {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                provinsi: provinces.find(item => item.id === data.provinsi)
+                  ?.name,
+                kota: regencies.find(item => item.id === data.kota)?.name,
+                kecamatan: districts.find(item => item.id === data.kecamatan)
+                  ?.name,
+                kelurahan: villages.find(item => item.id === data.kelurahan)
+                  ?.name,
+              },
+            })
+          }>
           Berikutnya
         </Text>
       </View>

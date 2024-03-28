@@ -1,9 +1,40 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import {StyleSheet, Text, View, ScrollView, TextInput} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/AntDesign';
 
-const Send = ({navigation}) => {
+const Send = ({navigation, route}) => {
+  const userData = route.params?.userData;
+  const selectedImage = route.params?.selectedImage;
+
+  const postData = async () => {
+    try {
+      const response = await fetch('https://tes-tech.vercel.app/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          userData,
+          selectedImage,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data berhasil dipost:', data);
+      } else {
+        console.error('Gagal memposting data');
+      }
+    } catch (error) {
+      console.error('Terjadi kesalahan:', error);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
@@ -16,23 +47,38 @@ const Send = ({navigation}) => {
           </Text>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.leftText}>No Polisi :</Text>
-          <Text style={styles.rightText}>B 1234 EFG</Text>
+          <Text style={styles.leftText}>Nama Depan :</Text>
+          <Text style={styles.rightText}>{userData?.firstName}</Text>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.leftText}>Nama Tertanggung :</Text>
-          <Text style={styles.rightText}>Fajar</Text>
+          <Text style={styles.leftText}>Nama Belakang :</Text>
+          <Text style={styles.rightText}>{userData?.lastName}</Text>
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.leftText}>No Polis :</Text>
-          <Text style={styles.rightText}>v313928302</Text>
+          <Text style={styles.leftText}>Provinsi :</Text>
+          <Text style={styles.rightText}>{userData?.provinsi}</Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.leftText}>Kota :</Text>
+          <Text style={styles.rightText}>{userData?.kota}</Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.leftText}>Kecamatan :</Text>
+          <Text style={styles.rightText}>{userData?.kecamatan}</Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.leftText}>Kelurahan :</Text>
+          <Text style={styles.rightText}>{userData?.kelurahan}</Text>
         </View>
         <View>
-          <Text style={styles.headerText}>Foto Sim</Text>
+          <Text style={styles.headerText}>Foto KTP</Text>
+          {selectedImage && (
+            <Image source={{uri: selectedImage}} style={styles.image} />
+          )}
         </View>
-        <Text style={styles.next} onPress={() => navigation.navigate('Send')}>
-          Berikutnya
-        </Text>
+        <TouchableOpacity style={styles.nextButton} onPress={postData}>
+          <Text style={styles.nextText}>Kirim Data</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -58,12 +104,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 10,
   },
-  contentText: {
-    textAlign: 'center',
-    color: 'blue',
-    marginTop: 10,
-    backgroundColor: '#AFE1AF',
-  },
   textContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -77,16 +117,22 @@ const styles = StyleSheet.create({
     color: 'blue',
     flex: 1,
   },
-  inputData: {
-    backgroundColor: '#D3D3D3',
-    marginBottom: 10,
-    padding: 5,
+  nextButton: {
+    backgroundColor: 'blue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
+    marginTop: 20,
+    alignItems: 'center',
   },
-  next: {
-    color: 'blue',
-    fontSize: 15,
-    textAlign: 'right',
+  nextText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  image: {
+    width: 250,
+    height: 250,
+    marginTop: 10,
   },
 });
 
